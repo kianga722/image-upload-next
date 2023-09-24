@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react';
-import GalleryContextProvider from '../contexts/GalleryContext';
-import UploadContextProvider from '../contexts/UploadContext';
+import { Provider } from 'react-redux/es/exports';
+import { store } from '../redux/store';
 
 import Header from './Header';
 import Gallery from './Gallery';
@@ -15,13 +15,10 @@ import { global } from '../styles/global-style';
 
 const ClientWrapper = () => {
     return (
-        <>
+        <Provider store={store}>
             <MSWComponent />
       
             <Global styles={global} />
-
-            <GalleryContextProvider initialSelectedImage={null}>
-                <UploadContextProvider initialModalOpen={false}>
                 <div id='content-wrapper'>
                     <Header />
 
@@ -31,9 +28,7 @@ const ClientWrapper = () => {
 
                     <UploadModal />
                 </div>
-                </UploadContextProvider>
-            </GalleryContextProvider> 
-        </>
+        </Provider>
     )
 }
 

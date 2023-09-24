@@ -1,14 +1,16 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { APP_TITLE } from '../utils/CONSTANTS';
-
-import { UploadContext, UploadContextType } from '../contexts/UploadContext';
+import { useAppDispatch } from "../redux/hooks";
+import { openModal } from "../redux/uploadSlice";
 
 import { HeaderStyles } from '../styles/HeaderStyles';
 
 const Header = () => {   
-    const { 
-        handleModalOpen
-    } = useContext(UploadContext) as UploadContextType;
+    const dispatch = useAppDispatch();
+
+    function handleModalOpen() {
+        dispatch(openModal());
+    }
 
     return (
         <HeaderStyles>

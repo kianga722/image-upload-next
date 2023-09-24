@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
-
-import { GalleryContext, GalleryContextType } from '../contexts/GalleryContext';
+import React from 'react';
+import { useAppDispatch } from "../redux/hooks";
+import { setSelectedImage } from "../redux/gallerySlice";
 
 import { ThumbnailStyles } from '../styles/ThumbnailStyles';
 
@@ -9,13 +9,11 @@ export type ThumbnailType = {
 };
 
 const Thumbnail = ({ filename }: ThumbnailType )=> {
-    const { 
-        setSelectedImage,
-    } = useContext(GalleryContext) as GalleryContextType;
+    const dispatch = useAppDispatch();
 
     function handleThumbnailClick(thumbnail: string) {
         const fullImage = thumbnail.replace('resized-', '');
-        setSelectedImage(fullImage)
+        dispatch(setSelectedImage(fullImage));
     }
     
     return (

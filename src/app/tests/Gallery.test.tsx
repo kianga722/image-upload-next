@@ -1,13 +1,13 @@
 import React from 'react';
-import 'whatwg-fetch'
-
+import 'whatwg-fetch';
 import { MAX_THUMBNAIL_KEYS } from '../utils/CONSTANTS';
 import Gallery from '../components/Gallery';
 import ImageModal from '../components/ImageModal';
 
-import GalleryContextProvider from '../contexts/GalleryContext';
+// We're using our own custom render function and not RTL's render.
+import { renderWithProviders } from './test-utils';
 
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { server } from '../mocks/server.js'
@@ -19,7 +19,6 @@ beforeAll(() => server.listen())
 // (which is important for test isolation):
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
-
 
 describe("Testing Gallery", () => {
     const observerMap = new Map();
@@ -76,11 +75,7 @@ describe("Testing Gallery", () => {
     });
 
     test("Should fetch data from AWS bucket and render Gallery", async () => {
-        render(
-            <GalleryContextProvider initialSelectedImage={null}>
-                <Gallery />
-            </GalleryContextProvider>
-        )
+        renderWithProviders(<Gallery />)
 
         await waitFor(() => {
             expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
@@ -92,11 +87,7 @@ describe("Testing Gallery", () => {
     })
 
     test("Should display more data when user scrolls down and hits the Intersection Observer Target", async () => {
-        render(
-            <GalleryContextProvider initialSelectedImage={null}>
-                <Gallery />
-            </GalleryContextProvider>
-        )
+        renderWithProviders(<Gallery />)
 
         await waitFor(() => {
             expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
@@ -106,25 +97,19 @@ describe("Testing Gallery", () => {
         expect(imgs).toHaveLength(MAX_THUMBNAIL_KEYS);
 
         const observerTarget = screen.getByTestId('observer-target');
+
         act(() => {
             intersect(observerTarget, true);
         });
 
-        await waitFor(() => {
-            expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
+        await waitFor(async () => {
+            const imgsAfter = await screen.findAllByRole('img');
+            expect(imgsAfter).toHaveLength(2*MAX_THUMBNAIL_KEYS);   
         })
-    
-        // Wait for page to update with query text
-        const imgsAfter = await screen.findAllByRole('img');
-        expect(imgsAfter).toHaveLength(2*MAX_THUMBNAIL_KEYS);       
     })
 
     test("Should display more data when user hits the Load More Button", async () => {
-        render(
-            <GalleryContextProvider initialSelectedImage={null}>
-                <Gallery />
-            </GalleryContextProvider>
-        )
+        renderWithProviders(<Gallery />)
 
         await waitFor(() => {
             expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
@@ -139,22 +124,15 @@ describe("Testing Gallery", () => {
 
         })
 
-        await waitFor(() => {
-            expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
-        })
-    
-        // Wait for page to update with query text
-        const imgsAfter = await screen.findAllByRole('img');
-        expect(imgsAfter).toHaveLength(2*MAX_THUMBNAIL_KEYS);
+        await waitFor(async () => {
+            const imgsAfter = await screen.findAllByRole('img');
+            expect(imgsAfter).toHaveLength(2*MAX_THUMBNAIL_KEYS);   
+        })     
     })
 
 
     test("Should render Image Modal with full image when thumbnail of same image is clicked", async () => {
-        const { rerender } = render(
-            <GalleryContextProvider initialSelectedImage={null}>
-                <Gallery />
-            </GalleryContextProvider>
-        )
+        renderWithProviders(<><Gallery /> <ImageModal /></>)
 
         await waitFor(() => {
             expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
@@ -162,20 +140,11 @@ describe("Testing Gallery", () => {
 
         const imgs = await screen.findAllByRole('img');
         expect(imgs).toHaveLength(MAX_THUMBNAIL_KEYS);
-
+        
         act(() => {
             userEvent.click(imgs[3]);
-        });
+        })
 
-        rerender(
-            <GalleryContextProvider initialSelectedImage={null}>
-                <>
-                    <Gallery />
-                    <ImageModal />
-                </>
-            </GalleryContextProvider>
-        );
-        
         const clickedImgSrc = (imgs[3] as HTMLImageElement).src
 
         expect(clickedImgSrc).toContain('resized')

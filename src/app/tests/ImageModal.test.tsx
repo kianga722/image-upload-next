@@ -1,32 +1,46 @@
 import React from 'react';
 import ImageModal from '../components/ImageModal';
 
-import GalleryContextProvider from '../contexts/GalleryContext';
+import { setupStore } from '../redux/store';
+// We're using our own custom render function and not RTL's render.
+import { renderWithProviders } from './test-utils';
+import { setSelectedImage, resetSelectedImage } from "../redux/gallerySlice";
 
-import {render, screen, waitFor } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
+
 
 describe("Testing ImageModal", () => {
-    test("Should render null when image not set", async () => {
-        render(
-            <GalleryContextProvider initialSelectedImage={null}>
-              <ImageModal />
-            </GalleryContextProvider>
-        );
+    test("Should render null when image not set", () => {
+        const { container } = renderWithProviders(<ImageModal />)
 
-        await waitFor(() => {
-            expect(screen.queryByTestId('dialog-img')).not.toBeInTheDocument();
-        })
+        expect(container).toBeEmptyDOMElement;
     })
 
-    test("Should render component when image is set", async () => {
-        render(
-            <GalleryContextProvider initialSelectedImage={'test.jpg'}>
-              <ImageModal />
-            </GalleryContextProvider>
-        );
+    test("Should render component when image is set", () => {
+        const store = setupStore()
+        store.dispatch(setSelectedImage('test.jpg'))
+        renderWithProviders(<ImageModal />, { store })
 
-        await waitFor(() => {
-            expect(screen.queryByTestId('dialog-img')).toBeInTheDocument();
+        const img = screen.getByRole("img");
+
+        expect(img).toBeInTheDocument();
+    })
+
+    test("Should render null when image is reset", () => {
+        const store = setupStore()
+        act(() => {
+            store.dispatch(setSelectedImage('test.jpg'))
         })
+        const { container } = renderWithProviders(<ImageModal />, { store })
+
+        const img = screen.getByRole("img");
+
+        expect(img).toBeInTheDocument();
+
+        act(() => {
+            store.dispatch(resetSelectedImage())
+        })
+
+        expect(container).toBeEmptyDOMElement;
     })
 })

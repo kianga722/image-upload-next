@@ -1,7 +1,7 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { MAX_FILE_SIZE_BYTES } from '../utils/CONSTANTS';
-
-import { UploadContext, UploadContextType } from '../contexts/UploadContext';
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { closeModal, uploadSelector } from "../redux/uploadSlice";
 
 import Loader from './Loader';
 
@@ -21,10 +21,8 @@ export type PresignedPostUrlResponse = {
 };
 
 const UploadModal = () => {
-    const { 
-        isUploadModalOpen,
-        handleModalClose
-    } = useContext(UploadContext) as UploadContextType;
+    const isUploadModalOpen = useAppSelector(uploadSelector);
+    const dispatch = useAppDispatch();
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -111,6 +109,10 @@ const UploadModal = () => {
         }
 
         setIsLoading(false);
+    }
+
+    function handleModalClose() {
+        dispatch(closeModal());
     }
 
     function uploadReset() {

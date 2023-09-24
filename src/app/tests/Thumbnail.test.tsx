@@ -1,38 +1,35 @@
 import React from 'react';
 import Thumbnail from '../components/Thumbnail';
 
-import GalleryContextProvider from '../contexts/GalleryContext';
+// We're using our own custom render function and not RTL's render.
+import { renderWithProviders } from './test-utils';
 
-import { render, screen, act } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
 
 describe("Testing Thumbnail", () => {
     test("Should render the image thumbnail", () => {
-        render(
-            <GalleryContextProvider initialSelectedImage={null}>
-                <Thumbnail filename={'test.jpg'} />
-            </GalleryContextProvider>
-        )
+        const props = {
+            filename: 'test.jpg'
+        }
+        renderWithProviders(<Thumbnail {...props} />)
 
         const img: HTMLImageElement = screen.getByRole("img");
         expect(img.src).toContain('test')
     })
 
     test("Should render the same image thumbnail after click", () => {
-        render(
-            <GalleryContextProvider initialSelectedImage={null}>
-                <Thumbnail filename={'test.jpg'} />
-            </GalleryContextProvider>
-        )
+        const props = {
+            filename: 'test.jpg'
+        }
+        renderWithProviders(<Thumbnail {...props} />)
 
         const img: HTMLImageElement = screen.getByRole("img");
         expect(img.src).toContain('test');
 
         const button = screen.getByRole("button");
-        act(() => {
-            userEvent.click(button)
-        });
-
+        userEvent.click(button);
         expect(img.src).toContain('test');
     })
 })

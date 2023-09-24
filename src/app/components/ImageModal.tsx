@@ -1,14 +1,18 @@
-import React, { useContext } from 'react';
-
-import { GalleryContext, GalleryContextType } from '../contexts/GalleryContext';
+import React from 'react';
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { resetSelectedImage, gallerySelector } from "../redux/gallerySlice";
 
 import { ImageModalStyles } from '../styles/ImageModalStyles';
   
 const ImageModal = ()  => {
-    const { 
-        selectedImage,
-        handleClose
-    } = useContext(GalleryContext) as GalleryContextType;
+    const galleryState = useAppSelector(gallerySelector);
+    const dispatch = useAppDispatch();
+
+    const { selectedImage } = galleryState;
+
+    function handleClose() {
+        dispatch(resetSelectedImage());
+      }
 
     if (selectedImage === null) {
         return null

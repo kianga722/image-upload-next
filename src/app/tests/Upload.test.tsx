@@ -1,15 +1,18 @@
 import React from 'react';
-import 'whatwg-fetch'
-
+import 'whatwg-fetch';
 import { MAX_FILE_SIZE_BYTES } from '../utils/CONSTANTS';
 import UploadModal from '../components/UploadModal';
 
-import UploadContextProvider from '../contexts/UploadContext';
+import { setupStore } from '../redux/store';
+// We're using our own custom render function and not RTL's render.
+import { renderWithProviders } from './test-utils';
+import { openModal } from "../redux/uploadSlice";
 
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { server } from '../mocks/server.js'
+
 
 beforeAll(() => server.listen())
 // if you need to add a handler after calling setupServer for some specific test
@@ -48,11 +51,11 @@ describe("Testing Upload", () => {
     )
 
     test("Modal should allow file upload and show success message", async () => {
-        render(
-            <UploadContextProvider initialModalOpen={true}>
-              <UploadModal />
-            </UploadContextProvider>
-        );
+        const store = setupStore()
+        store.dispatch(openModal())
+        renderWithProviders(<UploadModal />, { store })
+
+        // customRender(<UploadModal />, {providerProps});
 
         expect(screen.getByText(/^Upload/)).toHaveTextContent('Upload Image');
         expect(screen.queryByTestId('uploadpreview')).not.toBeInTheDocument();
@@ -97,11 +100,9 @@ describe("Testing Upload", () => {
     })
 
     test("Should be able to change file inputs before submitting", async () => {
-        render(
-            <UploadContextProvider initialModalOpen={true}>
-              <UploadModal />
-            </UploadContextProvider>
-        );
+        const store = setupStore()
+        store.dispatch(openModal())
+        renderWithProviders(<UploadModal />, { store });
 
         expect(screen.getByText(/^Upload/)).toHaveTextContent('Upload Image');
         expect(screen.queryByTestId('uploadpreview')).not.toBeInTheDocument();
@@ -129,11 +130,9 @@ describe("Testing Upload", () => {
     })
 
     test("Should not allow uploads of files that are not an image and display proper error message", async () => {
-        render(
-            <UploadContextProvider initialModalOpen={true}>
-              <UploadModal />
-            </UploadContextProvider>
-        );
+        const store = setupStore()
+        store.dispatch(openModal())
+        renderWithProviders(<UploadModal />, { store })
 
         expect(screen.getByText(/^Upload/)).toHaveTextContent('Upload Image');
         expect(screen.queryByTestId('uploadpreview')).not.toBeInTheDocument();
@@ -151,11 +150,9 @@ describe("Testing Upload", () => {
     })
 
     test("Should not allow uploads of files that are too large and display proper error message", async () => {
-        render(
-            <UploadContextProvider initialModalOpen={true}>
-              <UploadModal />
-            </UploadContextProvider>
-        );
+        const store = setupStore()
+        store.dispatch(openModal())
+        renderWithProviders(<UploadModal />, { store })
 
         expect(screen.getByText(/^Upload/)).toHaveTextContent('Upload Image');
         expect(screen.queryByTestId('uploadpreview')).not.toBeInTheDocument();
