@@ -1,0 +1,9 @@
+const APP_TITLE="Image Upload App"
+const MAX_THUMBNAIL_KEYS=30
+const MAX_FILE_SIZE_BYTES=10000000
+
+export {
+    APP_TITLE,
+    MAX_THUMBNAIL_KEYS,
+    MAX_FILE_SIZE_BYTES
+}
