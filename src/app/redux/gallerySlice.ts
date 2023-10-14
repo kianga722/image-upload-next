@@ -4,14 +4,12 @@ import { RootState } from "./store";
 
 export interface GalleryType {
   selectedImage: string | null;
-  thumbnails: string[];
   isTruncated: boolean;
   continuationToken: string | null;
 }
 
 const initialState: GalleryType = {
   selectedImage: null,
-  thumbnails: [],
   isTruncated: true,
   continuationToken: null
 };
